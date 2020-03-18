@@ -1,0 +1,94 @@
+<h2>Burgers</h2>
+
+{{#each burgers}}
+    {{#unless devoured}}
+    <p>{{burger_name}}</p>
+    <button class="devour-burger" data-id="{{id}}">DEVOUR!</button>
+    {{/unless}}
+{{/each}}
+
+<h2>Burgers eaten</h2>
+
+{{#each burgers}}
+    {{#if devoured}}
+    <p>{{burger_name}}</p>
+    <button class="digest-burger" data-id="{{id}}">DIGEST!</button>
+    {{/if}}
+{{/each}}
+
+<form class="create-form">
+    <label for="burger">What type of burger do you want to eat?</label>
+    <input type="text" id="burger" name="name">
+
+    <button type="submit">Add Burger</button>
+</form>
+
+<script>
+    $("form").on("submit", function(event){
+        event.preventDefault();
+        
+        let burger_name = $("input").val();
+
+        let newBurger = {
+            name: burger_name
+            //devoured: false
+        }
+
+        $.ajax("/api/burgers", {
+            type: "POST",
+            data: newBurger
+        }).then(
+            function() {
+                console.log("created new burger");
+                // Reload the page to get the updated list
+                location.reload();
+            }
+        );
+    });
+
+    $(".devour-burger").on("click", function(event){
+        //event.target;
+        event.preventDefault();
+        console.log("devour button");
+        var id = $(this).attr("data-id")
+        //var id = $(this).data("id")
+        //var url = `/api/burgers/${id}`
+
+
+        $.ajax({
+            url: "/api/burgers/" + id,
+            type: "PUT"
+        }).then(
+            function() {
+                console.log("devoured a burger");
+                // Reload the page to get the updated list
+                location.reload();
+            }
+        );
+
+        ///$.ajax("/api", {
+        //    type: "PUT",
+        //})
+        //
+        //$.put("/api")
+    })
+
+    $(".digest-burger").on("click", function(event){
+
+        event.preventDefault();
+
+        var id = $(this).attr("data-id")
+
+        $.ajax({
+            url: "/api/burgers/" + id,
+            type: "DELETE"
+        }).then(
+            function() {
+                console.log("digested a burger");
+                // Reload the page to get the updated list
+                location.reload();
+            }
+        );
+    })
+
+</script>
